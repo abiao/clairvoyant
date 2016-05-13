@@ -20,7 +20,6 @@ public class TableColumnIterator {
 		index++;
 		for (; index < nodes.size(); index++) {
 			Node node = nodes.elementAt(index);
-			System.out.println(node.getClass().getName());
 			if (node instanceof TableColumn) {
 				return (TableColumn)node;
 			}

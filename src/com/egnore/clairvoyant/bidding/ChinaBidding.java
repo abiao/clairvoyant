@@ -23,6 +23,11 @@ public class ChinaBidding {
 	public String area;
 	public String[] industries;
 	public String uri;
+	
+	public String getName() {
+		return name;
+	}
+
 	public boolean equals(ChinaBidding b) {
 		return name.equals(b.name) && uri.equals(b.uri);
 	}

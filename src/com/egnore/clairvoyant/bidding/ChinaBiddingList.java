@@ -33,11 +33,12 @@ import org.htmlparser.tags.TableRow;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
+import com.egnore.clairvoyant.util.Logger;
 import com.egnore.clairvoyant.util.TableColumnIterator;
 
 public class ChinaBiddingList {
-	public List<ChinaBidding> oldBiddings = new ArrayList<ChinaBidding>();
-	public List<ChinaBidding> newBiddings   = new ArrayList<ChinaBidding>();
+	public List<ChinaBidding> oldBiddings = new ArrayList<ChinaBidding>(); // oldest first
+	public List<ChinaBidding> newBiddings = new ArrayList<ChinaBidding>(); // newest first
 	public Date lastUpdateDate;
 	static protected String HISTORY_FILE = "oldbiddings";
 
@@ -49,8 +50,38 @@ public class ChinaBiddingList {
 		return false;
 	}
 
+	public List<ChinaBidding> getNewBiddingList() {
+		return newBiddings;
+	}
+	
+	public List<ChinaBidding> filterNewBiddingList(String word) {
+		List<String> words = new ArrayList<String>();
+		words.add(word);
+		return filterNewBiddingList(words);
+	}
+
+	public List<ChinaBidding> filterNewBiddingList(List<String> words) {
+		List<ChinaBidding> result = new ArrayList<ChinaBidding>();
+		for (int i = 0; i < newBiddings.size(); i++) {
+			ChinaBidding b = newBiddings.get(i);
+			for (String s : words) {
+				if (b.getName().toLowerCase().contains(s)) {
+					result.add(b);
+				}
+			}
+		}
+		return result;
+	}
+
 	public void getNewBiddings() throws IOException, URISyntaxException, ParserException {
-		oldBiddings.addAll(newBiddings);
+		if (oldBiddings.size() > 100000) {
+			oldBiddings.clear();
+		}
+		
+		for (int i = newBiddings.size() - 1; i >=0; i--) {
+			oldBiddings.add(newBiddings.get(i));
+		}
+
 		newBiddings.clear();
 		lastUpdateDate = new Date();
 		ChinaBidding markedBidding = (oldBiddings.size() == 0) ? null : oldBiddings.get(oldBiddings.size() - 1);
@@ -59,18 +90,19 @@ public class ChinaBiddingList {
         CloseableHttpClient httpclient = HttpClients.custom()
                 .setDefaultCookieStore(cookieStore)
                 .build();
-        int page = 1;
+        int page = 0;
 
 		TableColumnIterator it = new TableColumnIterator();
 		TableColumn n;
 		while (true) {
-			URI uri = new URI("http://www.chinabidding.com.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "8&areaid=&table_type=1000&b_date=week");
+			page++;
+			URI uri = new URI("http://www.chinabidding.com.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
 			HttpGet httpget = new HttpGet(uri);
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			try {
 				HttpEntity entity = response.getEntity();
 				String result = EntityUtils.toString(entity);
-				//System.out.print(result);
+				//Logger.Debug(result);
 
 				Parser parser = Parser.createParser(result, "utf-8");
 				AndFilter filter = new AndFilter(new TagNameFilter("tr"), new HasAttributeFilter("height", "23"));  
@@ -81,7 +113,6 @@ public class ChinaBiddingList {
 				}
 				for (int i = 0; i < nodeList.size(); ++i) {  
 					node = nodeList.elementAt(i);
-					System.out.println(node.getClass().getName());
 					it.setTableRow((TableRow) node); 
 //			        <tr height="23"  class="listrow2"   >    
 //		             <td>
@@ -117,32 +148,25 @@ public class ChinaBiddingList {
 					b.name = n.toPlainTextString().trim();
 					b.uri = ((LinkTag)n.getChild(0)).getLink();
 					if (markedBidding!= null && markedBidding.equals(b)) {
-						System.out.print(newBiddings.size() + " items loaded");
+						Logger.Debug("meet " + markedBidding.getName());
+						Logger.Info(newBiddings.size() + " items loaded");
 						return;
 					}
 					it.getNextTableColumn();	// Ignore
 					b.types = it.getNextTableColumn().toPlainTextString().split(",");
 					b.area = it.getNextTableColumn().toPlainTextString();
 					b.industries = it.getNextTableColumn().toPlainTextString().split(",");
+					System.out.println("P]" + b.name);
 					newBiddings.add(b);
- 
-            	  //System.out.println(node.getChildren().elementAt(j).getClass().getName());
-              }
-             // newbidding.add(b);
-              
-              //System.out.println(node.getChildren().elementAt(0));
-//              System.out.println(node.getClass().getName() + " " + id);
-            		  
-
-	        } finally {
+					}
+ 	        } finally {
 	            response.close();
 	        }
 
 			if (markedBidding == null) {	//first run;
-				System.out.print(newBiddings.size() + " items loaded");
+				Logger.Info(newBiddings.size() + " items loaded");
 				return;
 			}
-			page++;
 		}
 	}
 

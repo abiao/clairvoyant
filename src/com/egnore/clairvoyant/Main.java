@@ -16,12 +16,15 @@ import org.apache.http.util.EntityUtils;
 
 import com.egnore.clairvoyant.bidding.CMCCBiddingList;
 import com.egnore.clairvoyant.bidding.ChinaBiddingList;
+import com.egnore.clairvoyant.bidding.Runner;
 import com.egnore.clairvoyant.mail.MailSender;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+    	Runner r = new Runner();
+    	r.run();
     	//HttpUtils.dumpURIContent("http://caigou.chinatelecom.com.cn:8010/ESCM/biddoc/getListJT.do");
-    	MailSender sender = new MailSender();
+/*    	MailSender sender = new MailSender();
     	sender.test();
     	if (true) return;
     	ChinaBiddingList cb = new ChinaBiddingList();
@@ -31,7 +34,7 @@ public class Main {
     	cb.dumpBiddings();
     	CMCCBiddingList l = new CMCCBiddingList();
     	l.getBiddingList();
-    	/*
+*/    	/*
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
             HttpGet httpGet = new HttpGet("http://httpbin.org/get");
