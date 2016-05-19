@@ -3,24 +3,10 @@ package com.egnore.clairvoyant.bidding;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
-import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
@@ -47,7 +33,6 @@ public class ChinaBiddingList extends BiddingList {
 		TableColumn n;
 		while (true) {
 			page++;
-//			URI uri = new URI("http://www.chinabidding.com.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
 			URI uri = new URI("http://www.chinabidding.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
 			HttpGet httpget = new HttpGet(uri);
 			Logger.Debug(uri.toString());
@@ -109,7 +94,7 @@ public class ChinaBiddingList extends BiddingList {
 					b.types = it.getNextTableColumn().toPlainTextString().split(",");
 					b.area = it.getNextTableColumn().toPlainTextString();
 					b.industries = it.getNextTableColumn().toPlainTextString().split(",");
-					System.out.println("P]" + b.getProjectName());
+					Logger.Info("P]" + b.getProjectName());
 					newBiddings.add(b);
 					}
  	        } finally {

@@ -2,6 +2,8 @@ package com.egnore.clairvoyant.bidding;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 
 import org.apache.http.ParseException;
@@ -22,6 +24,7 @@ public class BiddingInfo {
 	public boolean equals(BiddingInfo b) {
 		return projectName.equals(b.projectName) && uri.equals(b.uri);
 	}
+
 	public void dump(PrintStream ps) {
 		ps.println(uri + "=>" + projectName);
 	}
@@ -34,7 +37,7 @@ public class BiddingInfo {
 		return projectName;
 	}
 	
-	public void setURI(String s) {
+	public void setShortURI(String s) {
 		uri = s;
 	}
 
@@ -42,8 +45,16 @@ public class BiddingInfo {
 		return deadlineDate;
 	}
 
-	public String getURI() {
+	public String getShortURI() {
 		return uri;
+	}
+
+	public String getFullURIString() {
+		return uri;
+	}
+
+	public URI getFullURI() throws URISyntaxException {
+		return new URI(getFullURIString());
 	}
 
 	public String getContentAsString() throws ParseException, IOException, ParserException {

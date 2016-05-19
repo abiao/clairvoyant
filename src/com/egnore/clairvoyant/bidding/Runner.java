@@ -49,8 +49,8 @@ public class Runner {
 					//sender.sendDefaultMail("cb@cloudera.com", b.getProjectName(), b.getContentAsString());
 				}
 			}
-*/
-			cb.getNewBiddings();
+if (true) return;*/
+			List<BiddingInfo> bis = cb.getNewBiddings();
 			r = cb.filterNewBiddingList(keyWords, cbExcludes);
 			if (!r.isEmpty()) {
 				for (int i = 0; i < r.size(); i++) {

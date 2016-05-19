@@ -17,8 +17,15 @@ import org.htmlparser.util.ParserException;
 import com.egnore.clairvoyant.HttpUtils;
 
 public class ChinaBidding extends BiddingInfo {
+	
+	@Override
+	public String getFullURIString() {
+		return "http://www.chinabidding.cn" + uri;
+	}
+
+	@Override
 	public String getContentAsString() throws ParseException, IOException, ParserException {
-		String s = HttpUtils.getURIContent("http://www.chinabidding.com.cn" + uri);
+		String s = HttpUtils.getURIContent(getFullURIString());
 		StringBuilder sb = new StringBuilder();
 		Parser parser = Parser.createParser(s, "utf-8");
 		AndFilter filter = new AndFilter(new TagNameFilter("div"), new HasAttributeFilter("class", "xmgs"));  

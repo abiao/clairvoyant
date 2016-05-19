@@ -36,23 +36,17 @@ import com.egnore.clairvoyant.util.Logger;
 
 public class CMCCBiddingList extends BiddingList {
 	public class CMCCBiddingInfo extends BiddingInfo {
-		protected URI getContentURI() throws URISyntaxException {
-			URI uri = new URI("http://b2b.10086.cn/b2b/main/viewNoticeContent.html?noticeBean.id="+id);
-			return uri;
-		}
-		public String getContentAsString() throws ParseException, IOException, ParserException {
-			return "";
-		}
-		
-		public String getContentAsHTML() throws ParseException, IOException, ParserException {
-			return "";
+		@Override
+		public String getFullURIString() {
+			return "http://b2b.10086.cn/b2b/main/viewNoticeContent.html?noticeBean.id="+id;
 		}
 	}
 
+	@Override
 	public void refreshNewBiddingFromWeb() throws IOException, URISyntaxException, ParserException {
-		//URI uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=");
-		URI uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNoticeResult.html");
-		uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNotice.html");
+		URI uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=");
+		//URI uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNoticeResult.html");
+//		      uri = new URI("http://b2b.10086.cn/b2b/main/listVendorNotice.html");
 //		 uri = new URI("http://b2b.10086.cn/b2b/main/showBiao!showZhaobiaoResult.html");
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
 		formparams.add(new BasicNameValuePair("page.currentPage", "1"));
@@ -60,6 +54,10 @@ public class CMCCBiddingList extends BiddingList {
 		UrlEncodedFormEntity entity1 = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
 		System.out.println(uri);
 		HttpPost httppost = new HttpPost(uri);
+		
+		httppost.setHeader("Origin","http://b2b.10086.cn");
+		httppost.setHeader("Referer","http://b2b.10086.cn/b2b/main/listVendorNotice.html");
+		httppost.setHeader("Cookie", "WT_FPC=id=216b84792338fbb4a001462332940548:lv=1462332964192:ss=1462332940548; CmLocation=210|210; CmProvid=sh; JSESSIONID=MSdZkTFKSjBof9gRLGNTpdd5qNZ5VAHWNi0M_SAPLUvtO-P8-PG0x_P7hTeuMK0B; userType=12; b2bSSOCookieTicket=ae23d0e66b67986f9732e17a97970f413630dcf82ff94b09; saplb_*=(J2EE204289720)204289751");
 		httppost.setEntity(entity1);
 		CloseableHttpResponse response = httpclient.execute(httppost);
 		if (response.getStatusLine().getStatusCode() == 302) {

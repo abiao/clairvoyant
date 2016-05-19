@@ -96,9 +96,13 @@ public class BiddingList {
 		return result;
 	}
 
-	public void getNewBiddings() throws IOException, URISyntaxException, ParserException {
-		if (oldBiddings.size() > 100000) {
+	static protected int MAX_BIDDING_RECORD_NUMBER = 5000000;
+
+	public List<BiddingInfo> getNewBiddings() throws IOException, URISyntaxException, ParserException {
+		if (oldBiddings.size() > MAX_BIDDING_RECORD_NUMBER) {
+			Logger.Info("record now at " + oldBiddings.size());
 			oldBiddings.clear();
+			Logger.Info("record now at " + oldBiddings.size());
 		}
 		
 		for (int i = newBiddings.size() - 1; i >=0; i--) {
@@ -115,6 +119,7 @@ public class BiddingList {
         	BiddingInfo bb = newBiddings.get(i);
         	Logger.Debug(bb.id + "=" + bb.projectName + ":" + bb.uri + ":" + ((bb.getDeadlineDate() == null) ? "" : format.format(bb.deadlineDate)));
         }
+        return this.getNewBiddingList();
 	}
 
 	public void refreshNewBiddingFromWeb() throws IOException, URISyntaxException, ParserException {
