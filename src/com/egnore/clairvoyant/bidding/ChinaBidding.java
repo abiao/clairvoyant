@@ -16,25 +16,8 @@ import org.htmlparser.util.ParserException;
 
 import com.egnore.clairvoyant.HttpUtils;
 
-public class ChinaBidding {
-	public String name;
-	public Date openDate;
-	public String[] types;
-	public String area;
-	public String[] industries;
-	public String uri;
-	
-	public String getName() {
-		return name;
-	}
-
-	public boolean equals(ChinaBidding b) {
-		return name.equals(b.name) && uri.equals(b.uri);
-	}
-	public void dump(PrintStream ps) {
-		ps.println(uri + "=>" + name);
-	}
-	public String getContent() throws ParseException, IOException, ParserException {
+public class ChinaBidding extends BiddingInfo {
+	public String getContentAsString() throws ParseException, IOException, ParserException {
 		String s = HttpUtils.getURIContent("http://www.chinabidding.com.cn" + uri);
 		StringBuilder sb = new StringBuilder();
 		Parser parser = Parser.createParser(s, "utf-8");
@@ -44,6 +27,7 @@ public class ChinaBidding {
 			Node node = nodeList.elementAt(i);
 			String ss = node.toPlainTextString();
 			ss = ss.replace("中国采购与招标网", "我网");
+			ss = ss.replace("chinabidding", "data");
 			sb.append(ss);
 		}
 		return sb.toString();

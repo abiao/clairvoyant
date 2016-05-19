@@ -36,73 +36,26 @@ import org.htmlparser.util.ParserException;
 import com.egnore.clairvoyant.util.Logger;
 import com.egnore.clairvoyant.util.TableColumnIterator;
 
-public class ChinaBiddingList {
-	public List<ChinaBidding> oldBiddings = new ArrayList<ChinaBidding>(); // oldest first
-	public List<ChinaBidding> newBiddings = new ArrayList<ChinaBidding>(); // newest first
-	public Date lastUpdateDate;
+public class ChinaBiddingList extends BiddingList {
 	static protected String HISTORY_FILE = "oldbiddings";
 
-	public void saveBiddings() {
-		
-	}
-
-	public boolean isKnownBidding(ChinaBidding b) {
-		return false;
-	}
-
-	public List<ChinaBidding> getNewBiddingList() {
-		return newBiddings;
-	}
-	
-	public List<ChinaBidding> filterNewBiddingList(String word) {
-		List<String> words = new ArrayList<String>();
-		words.add(word);
-		return filterNewBiddingList(words);
-	}
-
-	public List<ChinaBidding> filterNewBiddingList(List<String> words) {
-		List<ChinaBidding> result = new ArrayList<ChinaBidding>();
-		for (int i = 0; i < newBiddings.size(); i++) {
-			ChinaBidding b = newBiddings.get(i);
-			for (String s : words) {
-				if (b.getName().toLowerCase().contains(s)) {
-					result.add(b);
-				}
-			}
-		}
-		return result;
-	}
-
-	public void getNewBiddings() throws IOException, URISyntaxException, ParserException {
-		if (oldBiddings.size() > 100000) {
-			oldBiddings.clear();
-		}
-		
-		for (int i = newBiddings.size() - 1; i >=0; i--) {
-			oldBiddings.add(newBiddings.get(i));
-		}
-
-		newBiddings.clear();
-		lastUpdateDate = new Date();
-		ChinaBidding markedBidding = (oldBiddings.size() == 0) ? null : oldBiddings.get(oldBiddings.size() - 1);
-
-		BasicCookieStore cookieStore = new BasicCookieStore();
-        CloseableHttpClient httpclient = HttpClients.custom()
-                .setDefaultCookieStore(cookieStore)
-                .build();
+	public void refreshNewBiddingFromWeb() throws IOException, URISyntaxException, ParserException {
+		BiddingInfo markedBidding = (oldBiddings.size() == 0) ? null : oldBiddings.get(oldBiddings.size() - 1);
         int page = 0;
 
 		TableColumnIterator it = new TableColumnIterator();
 		TableColumn n;
 		while (true) {
 			page++;
-			URI uri = new URI("http://www.chinabidding.com.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
+//			URI uri = new URI("http://www.chinabidding.com.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
+			URI uri = new URI("http://www.chinabidding.cn/search/searchzbw/search2?rp=22&categoryid=&keywords=&page=" + Integer.toString(page) + "&areaid=&table_type=1000&b_date=week");
 			HttpGet httpget = new HttpGet(uri);
+			Logger.Debug(uri.toString());
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			try {
 				HttpEntity entity = response.getEntity();
 				String result = EntityUtils.toString(entity);
-				//Logger.Debug(result);
+				Logger.Debug(result);
 
 				Parser parser = Parser.createParser(result, "utf-8");
 				AndFilter filter = new AndFilter(new TagNameFilter("tr"), new HasAttributeFilter("height", "23"));  
@@ -145,10 +98,10 @@ public class ChinaBiddingList {
 					n = it.getNextTableColumn();
 					
 					ChinaBidding b = new ChinaBidding();
-					b.name = n.toPlainTextString().trim();
+					b.setProjectName(n.toPlainTextString().trim());
 					b.uri = ((LinkTag)n.getChild(0)).getLink();
 					if (markedBidding!= null && markedBidding.equals(b)) {
-						Logger.Debug("meet " + markedBidding.getName());
+						Logger.Debug("meet " + markedBidding.getProjectName());
 						Logger.Info(newBiddings.size() + " items loaded");
 						return;
 					}
@@ -156,7 +109,7 @@ public class ChinaBiddingList {
 					b.types = it.getNextTableColumn().toPlainTextString().split(",");
 					b.area = it.getNextTableColumn().toPlainTextString();
 					b.industries = it.getNextTableColumn().toPlainTextString().split(",");
-					System.out.println("P]" + b.name);
+					System.out.println("P]" + b.getProjectName());
 					newBiddings.add(b);
 					}
  	        } finally {
@@ -178,7 +131,7 @@ public class ChinaBiddingList {
         for (int i = 0; i < oldBiddings.size(); i++) {
         	oldBiddings.get(i).dump(System.out);
         }
-        System.out.print(newBiddings.get(0).getContent());
+        System.out.print(newBiddings.get(0).getContentAsString());
 	}
 
 }

@@ -20,9 +20,9 @@ import com.egnore.clairvoyant.bidding.Runner;
 import com.egnore.clairvoyant.mail.MailSender;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-    	Runner r = new Runner();
-    	r.run();
+	public static void main(String[] args) throws Exception {
+		Runner r = new Runner();
+		r.run();
     	//HttpUtils.dumpURIContent("http://caigou.chinatelecom.com.cn:8010/ESCM/biddoc/getListJT.do");
 /*    	MailSender sender = new MailSender();
     	sender.test();
